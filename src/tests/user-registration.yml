@@ -1,0 +1,24 @@
+config:
+  processor: "../scripts/processor.js"
+  phases:
+    - name: "Steady Phase"
+      duration: 2
+      arrivalRate: 1
+  environments:
+    production:
+      target: "https://greffchandler.net"
+    staging:
+      target: "https://staging.greffchandler.net"
+scenarios:
+  - flow:
+      - post:
+          url: "/api/auth/tokens/create"
+          capture:
+            - json: "$.accessToken"
+              as: "accessToken"
+      - post:
+          url: "/protected/api/registrations/users/register"
+          headers:
+            Authorization: "Bearer {{ accessToken }}"
+            Content-Type: "application/json"
+          let: setUserAsBody

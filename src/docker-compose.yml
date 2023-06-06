@@ -1,0 +1,77 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "0.0.0.0:5672:5672"
+      - "0.0.0.0:15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=serviceuser
+      - RABBITMQ_DEFAULT_PASS=Q50ixbjo2t0EdrzgY06Z
+
+  auth-service:
+    image: dockeroo80/uima-auth-service
+    ports:
+      - "0.0.0.0:8080:80"
+    environment:
+      - Auth0__ClientSecret=4EOI6CpsjnaNCLaoooZD4SBpAp15UdZxSTr_JKpXdb2BAISULcn-_9tIwMhjHMbj
+      - Auth0__ClientId=OmOygYoCZV5Tr2MvINhRGu5wSrbkwGie
+      - Auth0__Domain=https://dev-bdlryd7w5u08tcbs.us.auth0.com/
+      - Auth0__Audience=https://uima/authentication
+
+  identity-service:
+    image: dockeroo80/uima-identity-service
+    ports:
+      - "0.0.0.0:8181:80"
+    environment:
+      - ConnectionStrings__Users=Server=ec2-13-41-66-152.eu-west-2.compute.amazonaws.com:5432;Database=Users;User Id=postgres;Password=70vc3864twrfej3m5y4r;
+      - ConnectionStrings__Keys=Server=ec2-13-41-66-152.eu-west-2.compute.amazonaws.com:5432;Database=Keys;User Id=postgres;Password=70vc3864twrfej3m5y4r;
+      - Bugsnag__ApiKey=ee515ccc05fc81a7aad935736a210135
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=serviceuser
+      - RabbitMQ__Password=Q50ixbjo2t0EdrzgY06Z
+      - RabbitMQ__UserRegistrations__Exchange=uima.registration
+      - RabbitMQ__UserRegistrations__RoutingKey=users.new.keys
+      - Jabber__Host=localhost
+
+  registration-service:
+    image: dockeroo80/uima-registration-service
+    ports:
+      - "0.0.0.0:8282:80"
+    environment:
+      - ConnectionStrings__Users=Server=ec2-13-41-66-152.eu-west-2.compute.amazonaws.com:5432;Database=Users;User Id=postgres;Password=70vc3864twrfej3m5y4r;
+      - Bugsnag__ApiKey=ee515ccc05fc81a7aad935736a210135
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=serviceuser
+      - RabbitMQ__Password=Q50ixbjo2t0EdrzgY06Z
+      - RabbitMQ__Exchange=uima.registration
+      - Jabber__Host=localhost
+
+  xmp-manager:
+    image: dockeroo80/uima-xmp-manager
+    ports:
+      - "0.0.0.0:8383:80"
+    environment:
+      - Bugsnag__ApiKey=ee515ccc05fc81a7aad935736a210135
+      - Ejabberd__BaseUrl=https://ejabberd:5443
+      - Ejabberd__Host=localhost
+      - Ejabberd__Service=localhost
+      - Ejabberd__Username=admin
+      - Ejabberd__Password=admin
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=serviceuser
+      - RabbitMQ__Password=Q50ixbjo2t0EdrzgY06Z
+      - RabbitMQ__UserRegistrations__Exchange=uima.registration
+      - RabbitMQ__UserRegistrations__RegistrationsRoutingKey=users.new
+      - RabbitMQ__UserRegistrations__UnregistrationsRoutingKey=users.remove
+
+  ejabberd:
+    image: dockeroo80/uima-ejabberd
+    ports:
+      - "0.0.0.0:5222:5222"
+      - "0.0.0.0:5280:5280"
+      - "0.0.0.0:5443:5443"
+    environment:
+      - XMPP_DOMAIN=localhost
+      - EJABBERD_ADMIN_USER=admin
+      - EJABBERD_ADMIN_PASSWORD=admin
