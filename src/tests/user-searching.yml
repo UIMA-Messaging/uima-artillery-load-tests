@@ -11,9 +11,6 @@ config:
       duration: 30
       arrivalRate: 100
       rampTo: 0
-  # ensure:
-  #   p99: 150
-  #   maxErrorRate: 1
   environments:
     production:
       target: "https://greffchandler.net"

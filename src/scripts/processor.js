@@ -1,14 +1,14 @@
 const fs = require("fs");
-
-const userIndex = 0;
-const users = JSON.parse(fs.readFileSync("./src/scripts/material/users.json"));
+const faker = require("faker");
+const path = require("path");
 
 module.exports = {
-  setUserAsBody: (requestParams, context, events, next) => {
-    const user = users[userIndex];
-    console.log(user);
-    context.vars.requestBody = JSON.stringify(user);
-    userIndex += 1;
+  generateSignupData: (requestParams, ctx, ee, next) => {
+    const filePath = path.join(__dirname, "./material/exchange-keys.json");
+    const file = fs.readFileSync(filePath);
+    const displayName = faker.internet.userName().replace("_", "");
+    ctx.vars["displayName"] = displayName;
+    ctx.vars["exchangeKeys"] = JSON.parse(file);
     return next();
   },
 };
