@@ -4,13 +4,13 @@ config:
     - name: "Ramp-up Phase"
       duration: 30
       arrivalRate: 0
-      rampTo: 30
+      rampTo: 50
     - name: "Steady Phase"
       duration: 60
-      arrivalRate: 30
+      arrivalRate: 50
     - name: "Ramp-down Phase"
       duration: 30
-      arrivalRate: 30
+      arrivalRate: 50
       rampTo: 0
   environments:
     production:
@@ -19,14 +19,13 @@ config:
       target: "https://staging.greffchandler.net"
 scenarios:
   - flow:
-      # - post:
-      #     url: "/api/auth/tokens/create"
-      #     capture:
-      #       - json: "$.accessToken"
-      #         as: "accessToken"
       - post:
-          url: "/api/registrations/users/register"
-          # url: "/protected/api/registrations/users/register"
+          url: "/api/auth/tokens/create"
+          capture:
+            - json: "$.accessToken"
+              as: "accessToken"
+      - post:
+          url: "/protected/api/registrations/users/register"
           headers:
             Authorization: "Bearer {{ accessToken }}"
             Content-Type: "application/json"
@@ -37,9 +36,7 @@ scenarios:
             - json: "$.id"
               as: "id"
           beforeRequest: generateSignupData
-          # afterResponse: "logResponse"
       - delete:
-          url: "/api/registrations/users/unregister/{{ id }}"
-          # url: "/protected/api/registrations/users/unregister/{{ id }}"
+          url: "/protected/api/registrations/users/unregister/{{ id }}"
           headers:
             Authorization: "Bearer {{ accessToken }}"
