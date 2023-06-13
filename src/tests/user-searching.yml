@@ -1,14 +1,14 @@
 config:
   phases:
     - name: "Ramp-up Phase"
-      duration: 3
+      duration: 30
       arrivalRate: 0
       rampTo: 10
     - name: "Steady Phase"
       duration: 60
       arrivalRate: 10
     - name: "Ramp-down Phase"
-      duration: 3
+      duration: 30
       arrivalRate: 10
       rampTo: 0
   environments:
